@@ -16,6 +16,22 @@ def lastTwo(list: List[String]): List[String] =
   val beginningIndex = Math.max(0, list.length-2)
   list.slice(beginningIndex, list.length)
 
+// Write the function called movedFirstTwoToTheEnd, which gets a list and returns a new
+// list with the first two elements of the incoming list moved to the end. The following
+// assertion should be true:
+// movedFirstTwoToTheEnd(List("a", "b", "c")) == List("c", "a", "b")
+
+def movedFirstTwoToTheEnd(list: List[String]): List[String] =
+  if list.length < 3 then
+    list
+  else
+    val firstTwo = list.slice(0, 2)
+    val withoutFirstTwo = list.slice(2, list.length)
+    withoutFirstTwo.appendedAll(firstTwo)
+  // alternate solution
+  // if list.length < 3 then list else list.drop(2) ++ list.take(2)
+
+
 object chap03 extends App {
   assert(firstTwo(List("ab", "bc", "cd")) == List("ab", "bc"))
   assert(firstTwo(List("ab", "bc"))== List("ab", "bc"))
@@ -26,4 +42,12 @@ object chap03 extends App {
   assert(lastTwo(List("one", "two")) == List("one", "two"))
   assert(lastTwo(List("one")) == List("one"))
   assert(lastTwo(List()) == List())
+
+  assert(
+    movedFirstTwoToTheEnd(List("qwe", "asd", "poi", "cvb")) ==
+      List("poi", "cvb", "qwe", "asd")
+  )
+  assert(movedFirstTwoToTheEnd(List("qwe", "asd")) == List("qwe", "asd"))
+  assert(movedFirstTwoToTheEnd(List("qwe")) == List("qwe"))
+  assert(movedFirstTwoToTheEnd(List()) == List())
 }
