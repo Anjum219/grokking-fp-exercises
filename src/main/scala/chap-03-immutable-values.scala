@@ -31,6 +31,21 @@ def movedFirstTwoToTheEnd(list: List[String]): List[String] =
   // alternate solution
   // if list.length < 3 then list else list.drop(2) ++ list.take(2)
 
+// Write the function called insertedBeforeLast, which gets a list and a new element. It
+// returns a new list that has the element inserted before the last element of the incoming
+// list. The assertion below should be satisfied:
+// insertedBeforeLast(List("a", "b"), "c") == List("a", "c", "b")
+
+def insertedBeforeLast(list: List[String], element: String): List[String] =
+  if list.length == 0 then
+    List(element)
+  else
+    val last = list.slice(list.length - 1, list.length)
+    val withoutLast = list.slice(0, list.length - 1)
+    withoutLast.appended(element).appendedAll(last)
+  // alternate solution
+  // list.dropRight(1) ::: List(element) ::: list.takeRight(1)
+
 
 object chap03 extends App {
   assert(firstTwo(List("ab", "bc", "cd")) == List("ab", "bc"))
@@ -50,4 +65,12 @@ object chap03 extends App {
   assert(movedFirstTwoToTheEnd(List("qwe", "asd")) == List("qwe", "asd"))
   assert(movedFirstTwoToTheEnd(List("qwe")) == List("qwe"))
   assert(movedFirstTwoToTheEnd(List()) == List())
+
+  assert(
+    insertedBeforeLast(List("apple", "orange", "strawberry"), "banana") ==
+      List("apple", "orange", "banana", "strawberry")
+  )
+  assert(insertedBeforeLast(List("apple", "orange"), "banana") == List("apple", "banana", "orange"))
+  assert(insertedBeforeLast(List("apple"), "banana") == List("banana", "apple"))
+  assert(insertedBeforeLast(List(), "banana") == List("banana"))
 }
