@@ -83,6 +83,28 @@ def filterListMoreThan(list: List[String], threshold: Int): List[String] =
   list.filter(filterMoreThan(threshold))
 
 
+// Practicing currying
+
+// Return a new List with all numbers larger than 4 (pass 4 as an argument).
+// input: List(5, 1, 2, 4, 0) output: List(5)
+def largerThanN(n: Int)(i: Int): Boolean = i > n
+
+// Return a new List that contains numbers divisible by 5 (pass 5 as an
+// argument).
+// input: List(5, 1, 2, 4, 15) output: List(5, 15)
+def divisibleByN(n: Int)(i: Int): Boolean = i % n == 0
+
+// Return words that are shorter than four characters (pass 4 as an argument).
+// input: List("scala", "ada") output: List("ada")
+def shorterThanThreshold(threshold: Int)(word: String): Boolean = word.length < threshold
+
+// Return words that have more than two of the letter 's' inside (pass 2 as an
+// argument).
+// input: List("rust", "ada") output: List()
+def filterMoreThanThreshold(threshold: Int)(word: String): Boolean =
+  word.count(_ == 's') > threshold
+
+
 object chap04 extends App {
   assert(sortByLength(List("abc", "ac", "ab", "b", "a")) == List("b", "a", "ac", "ab", "abc"))
 
@@ -111,4 +133,9 @@ object chap04 extends App {
 
   assert(filterListMoreThan(List("rust", "ada"), 2) == List())
   assert(filterListMoreThan(List("rust", "ada"), 0) == List("rust"))
+
+  assert(List(5, 1, 2, 4, 0).filter(largerThanN(4)) == List(5))
+  assert(List(5, 1, 2, 4, 15).filter(divisibleByN(5)) == List(5, 15))
+  assert(List("scala", "ada").filter(shorterThanThreshold(4)) == List("ada"))
+  assert(List("rust", "ada").filter(filterMoreThanThreshold(2)) == List())
 }
