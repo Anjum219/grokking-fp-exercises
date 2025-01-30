@@ -105,6 +105,28 @@ def filterMoreThanThreshold(threshold: Int)(word: String): Boolean =
   word.count(_ == 's') > threshold
 
 
+// Practicing foldLeft
+
+// Return a sum of all integers in the given list.
+// input: List(5, 1, 2, 4, 100) output: 112
+def sum(list: List[Int]): Int = list.foldLeft(0)((sum, i) => sum + i)
+
+// Return the total length of all the words in the given list.
+// input: List("scala", "rust", "ada") output: 12
+def totalLengthOfWords(words: List[String]): Int =
+  words.foldLeft(0)((len, word) => len + word.length)
+
+// Return the number of the letter 's' found in all the words in the given list.
+// input: List("scala", "haskell", "rust", "ada") output: 3
+def totalOccurrencesOfS(words: List[String]): Int =
+  words.foldLeft(0)((sum, word) => sum + word.count(_ == 's'))
+
+// Return the maximum of all integers in the given list.
+// input: List(5, 1, 2, 4, 15) output: 15
+def max(numbers: List[Int]): Int =
+  numbers.foldLeft(Int.MinValue)((max, i) => if (i > max) i else max)
+
+
 object chap04 extends App {
   assert(sortByLength(List("abc", "ac", "ab", "b", "a")) == List("b", "a", "ac", "ab", "abc"))
 
@@ -138,4 +160,14 @@ object chap04 extends App {
   assert(List(5, 1, 2, 4, 15).filter(divisibleByN(5)) == List(5, 15))
   assert(List("scala", "ada").filter(shorterThanThreshold(4)) == List("ada"))
   assert(List("rust", "ada").filter(filterMoreThanThreshold(2)) == List())
+
+  assert(sum(List(5, 1, 2, 4, 100)) == 112)
+  assert(sum(List()) == 0)
+  assert(totalLengthOfWords( List("scala", "rust", "ada")) == 12)
+  assert(totalLengthOfWords(List()) == 0)
+  assert(totalOccurrencesOfS(List("scala", "haskell", "rust", "ada")) == 3)
+  assert(totalOccurrencesOfS(List("", "qwe")) == 0)
+  assert(max(List(5, 1, 2, 4, 15)) == 15)
+  assert(max(List(-100, 0, 100)) == 100)
+  assert(max(List()) == Int.MinValue)
 }
