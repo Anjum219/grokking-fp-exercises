@@ -14,4 +14,4 @@ We are using sbt `1.9.0` For other specific version, please define inside projec
 
 Inside `sbt` console, use `run` to run the project.
 
-To run a specific class, you can also exes in `sbt` then run `runMain chap04`. This will run the `chap04` class in file `src/main/scala/chap-04-functions-as-values.scala`
+To run a specific class, you can also exec in `sbt` then run `runMain chap04`. This will run the `chap04` class in file `src/main/scala/chap-04-functions-as-values.scala`
