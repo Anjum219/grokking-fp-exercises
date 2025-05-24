@@ -22,6 +22,8 @@ def getAuthorRecommendations(friends: List[String]): List[String] = friends
   .flatMap(recommendedBooks)
   .flatMap(_.authors)
 
+
+
 // Coffee break: Filtering techniques
 
 case class Point(x: Int, y: Int)
@@ -57,6 +59,32 @@ def getPointsInsideCircleUsingFunction(points: List[Point], radiuses: List[Int])
     p <- insideFilter(anyPoint, r)
   } yield s"$p is within a radius of $r"
 
+// Coffee break:
+// Parsing with Option
+
+case class Event(name: String, start: Int, end: Int)
+
+def validateName(name: String): Option[String] =
+  if name.size > 0 then Some(name) else None
+
+def validateStart(start: Int, end: Int): Option[Int] =
+  if start <= end then Some(start) else None
+
+def validateEnd(end: Int): Option[Int] =
+  if end < 3000 then Some(end) else None
+
+def validateLength(start: Int, end: Int, minLength: Int): Option[Int] =
+  val length = end - start
+  if length > minLength then Some(length) else None
+
+def parseLongEvent(name: String, start: Int, end: Int, minLength: Int): Option[Event] =
+  for {
+    validName <- validateName(name)
+    validEnd <- validateEnd(end)
+    validStart <- validateStart(start, end)
+    length <- validateLength(start, end, minLength)
+  } yield Event(validName, validStart, validEnd)
+
 
 
 object chap05 extends App {
@@ -70,4 +98,9 @@ object chap05 extends App {
   println(getPointsInsideCircleUsingFilter(points, riskyRadiuses))
   println(getPointsInsideCircleUsingGuard(points, riskyRadiuses))
   println(getPointsInsideCircleUsingFunction(points, riskyRadiuses))
+
+  println(parseLongEvent("Apollo Program", 1961, 1972, 10))
+  println(parseLongEvent("World War II", 1939, 1945, 10))
+  println(parseLongEvent("", 1939, 1945, 10))
+  println(parseLongEvent("Apollo Program", 1972, 1961, 10))
 }
