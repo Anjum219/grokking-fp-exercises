@@ -19,6 +19,16 @@ def parseShow(rawShow: String): TvShow =
 
   TvShow(name, yearStart, yearEnd)
 
+def extractYearStart(rawShow: String): Option[Int] =
+  val openBracketIndex = rawShow.indexOf('(')
+  val dashIndex = rawShow.indexOf('-')
+  for {
+    yearStr <- if (openBracketIndex > -1 && dashIndex > openBracketIndex + 1)
+                  Some(rawShow.substring(openBracketIndex + 1, dashIndex))
+                else None
+    year <- yearStr.toIntOption
+  } yield year
+
 
 
 object chap06 extends App {
@@ -35,4 +45,7 @@ object chap06 extends App {
     "Mad Men (2007-2015)"
   )
   println(parseShows(rawShows))
+
+  println(extractYearStart("Breaking Bad (2005-2013)"))
+  println(extractYearStart("Breaking Bad - 2005, 2013"))
 }
