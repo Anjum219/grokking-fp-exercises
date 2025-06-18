@@ -29,6 +29,22 @@ def extractYearStart(rawShow: String): Option[Int] =
     year <- yearStr.toIntOption
   } yield year
 
+def extractYearEnd(rawShow: String): Option[Int] =
+  val dashIndex = rawShow.indexOf('-')
+  val bracketCloseIndex = rawShow.indexOf(')')
+  for {
+    yearStr <- if (dashIndex > -1 && bracketCloseIndex > dashIndex + 1)
+                  Some(rawShow.substring(dashIndex + 1, bracketCloseIndex))
+                else None
+    year <- yearStr.toIntOption
+  } yield year
+
+def extractName(rawShow: String): Option[String] =
+  val bracketOpenIndex = rawShow.indexOf('(')
+  if (bracketOpenIndex > 0)
+    Some(rawShow.substring(0, bracketOpenIndex))
+  else None
+
 
 
 object chap06 extends App {
@@ -48,4 +64,10 @@ object chap06 extends App {
 
   println(extractYearStart("Breaking Bad (2005-2013)"))
   println(extractYearStart("Breaking Bad - 2005, 2013"))
+
+  println(extractYearEnd("Breaking Bad (2005-2013)"))
+  println(extractYearEnd("Breaking Bad - 2005, 2013"))
+
+  println(extractName("Breaking Bad (2005-2013)"))
+  println(extractName("(2005, 2013)"))
 }
