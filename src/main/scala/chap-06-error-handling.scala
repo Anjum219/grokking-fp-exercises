@@ -42,7 +42,7 @@ def extractYearEnd(rawShow: String): Option[Int] =
 def extractName(rawShow: String): Option[String] =
   val bracketOpenIndex = rawShow.indexOf('(')
   if (bracketOpenIndex > 0)
-    Some(rawShow.substring(0, bracketOpenIndex))
+    Some(rawShow.substring(0, bracketOpenIndex).trim)
   else None
 
 
