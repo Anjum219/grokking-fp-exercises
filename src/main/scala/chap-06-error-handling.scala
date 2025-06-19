@@ -6,18 +6,14 @@ def listShows(shows: List[TvShow]): List[TvShow] =
     .reverse
 
 def parseShows(rawShows: List[String]): List[TvShow] =
-  rawShows.map(rawShow => parseShow(rawShow))
+  rawShows.flatMap(rawShow => parseShow(rawShow))
 
-def parseShow(rawShow: String): TvShow =
-  val bracketOpen = rawShow.indexOf('(')
-  val bracketClose = rawShow.indexOf(')')
-  val dash = rawShow.indexOf('-')
-
-  val name = rawShow.substring(0, bracketOpen).trim
-  val yearStart = Integer.parseInt(rawShow.substring(bracketOpen + 1, dash))
-  val yearEnd = Integer.parseInt(rawShow.substring(dash + 1, bracketClose))
-
-  TvShow(name, yearStart, yearEnd)
+def parseShow(rawShow: String): Option[TvShow] =
+  for {
+    name <- extractName(rawShow)
+    yearStart <- extractYearStart(rawShow).orElse(extractSingleYear(rawShow))
+    yearEnd <- extractYearEnd(rawShow).orElse(extractSingleYear(rawShow))
+  } yield TvShow(name, yearStart, yearEnd)
 
 def extractYearStart(rawShow: String): Option[Int] =
   val openBracketIndex = rawShow.indexOf('(')
@@ -36,6 +32,18 @@ def extractYearEnd(rawShow: String): Option[Int] =
     yearStr <- if (dashIndex > -1 && bracketCloseIndex > dashIndex + 1)
                   Some(rawShow.substring(dashIndex + 1, bracketCloseIndex))
                 else None
+    year <- yearStr.toIntOption
+  } yield year
+
+def extractSingleYear(rawShow: String): Option[Int] =
+  val dashIndex = rawShow.indexOf('-')
+  val bracketOpenIndex = rawShow.indexOf('(')
+  val bracketCloseIndex = rawShow.indexOf(')')
+  for {
+    yearStr <- if (dashIndex == -1 && bracketOpenIndex > -1 && bracketCloseIndex > bracketOpenIndex + 1)
+                Some(rawShow.substring(bracketOpenIndex + 1, bracketCloseIndex))
+               else
+                None
     year <- yearStr.toIntOption
   } yield year
 
@@ -58,16 +66,8 @@ object chap06 extends App {
   val rawShows: List[String] = List(
     "Breaking Bad (2008-2013)",
     "The Wire (2002-2008)",
-    "Mad Men (2007-2015)"
+    "Mad Men (-2015)",
+    "Chernobyl (2013)"
   )
   println(parseShows(rawShows))
-
-  println(extractYearStart("Breaking Bad (2005-2013)"))
-  println(extractYearStart("Breaking Bad - 2005, 2013"))
-
-  println(extractYearEnd("Breaking Bad (2005-2013)"))
-  println(extractYearEnd("Breaking Bad - 2005, 2013"))
-
-  println(extractName("Breaking Bad (2005-2013)"))
-  println(extractName("(2005, 2013)"))
 }
