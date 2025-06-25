@@ -53,6 +53,20 @@ def extractName(rawShow: String): Option[String] =
     Some(rawShow.substring(0, bracketOpenIndex).trim)
   else None
 
+def extractSingleYearOrYearEnd(rawShow: String): Option[Int] =
+  extractSingleYear(rawShow).orElse(extractYearEnd(rawShow))
+
+def extractAnyYear(rawShow: String): Option[Int] =
+  extractYearStart(rawShow)
+    .orElse(extractYearEnd(rawShow))
+    .orElse(extractSingleYear(rawShow))
+
+def extractSingleYearIfNameExists(rawShow: String): Option[Int] =
+  extractName(rawShow).flatMap(name => extractSingleYear(rawShow))
+
+def extractAnyYearIfNameExists(rawShow: String): Option[Int] =
+  extractName(rawShow).flatMap(name => extractAnyYear(rawShow))
+
 
 
 object chap06 extends App {
