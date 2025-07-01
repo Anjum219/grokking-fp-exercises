@@ -8,6 +8,15 @@ def listShows(shows: List[TvShow]): List[TvShow] =
 def parseShows(rawShows: List[String]): List[TvShow] =
   rawShows.flatMap(rawShow => parseShow(rawShow))
 
+def addOrResign(
+  parsedShows: Option[List[TvShow]],
+  newParsedShow: Option[TvShow]
+): Option[List[TvShow]] =
+  for {
+    shows <- parsedShows
+    parsedShow <- newParsedShow
+  } yield shows.appended(parsedShow)
+
 def parseShow(rawShow: String): Option[TvShow] =
   for {
     name <- extractName(rawShow)
@@ -84,4 +93,15 @@ object chap06 extends App {
     "Chernobyl (2013)"
   )
   println(parseShows(rawShows))
+
+  println(addOrResign(Some(List.empty), Some(TvShow("Chernobyl", 2019, 2019))))
+  println(
+    addOrResign(
+      Some(List(TvShow("Chernobyl", 2019, 2019))),
+      Some(TvShow("The Wire", 2002, 2008))
+    )
+  )
+  println(addOrResign(Some(List(TvShow("Chernobyl", 2019, 2019))), None))
+  println(addOrResign(None, Some(TvShow("Chernobyl", 2019, 2019))))
+  println(addOrResign(None, None))
 }
