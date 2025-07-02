@@ -8,6 +8,12 @@ def listShows(shows: List[TvShow]): List[TvShow] =
 def parseShows(rawShows: List[String]): List[TvShow] =
   rawShows.flatMap(rawShow => parseShow(rawShow))
 
+def parseShowsWithAllOrNothing(rawShows: List[String]): Option[List[TvShow]] =
+  val initialValue: Option[List[TvShow]] = Some(List.empty)
+  rawShows
+    .map(parseShow)
+    .foldLeft(initialValue)(addOrResign)
+
 def addOrResign(
   parsedShows: Option[List[TvShow]],
   newParsedShow: Option[TvShow]
@@ -104,4 +110,11 @@ object chap06 extends App {
   println(addOrResign(Some(List(TvShow("Chernobyl", 2019, 2019))), None))
   println(addOrResign(None, Some(TvShow("Chernobyl", 2019, 2019))))
   println(addOrResign(None, None))
+
+  println(parseShows(List("Chernobyl (2019)", "Breaking Bad")))
+  println(parseShows(List("Chernobyl (2019)")))
+  println(parseShows(List()))
+  println(parseShowsWithAllOrNothing(List("Chernobyl (2019)", "Breaking Bad")))
+  println(parseShowsWithAllOrNothing(List("Chernobyl (2019)")))
+  println(parseShowsWithAllOrNothing(List()))
 }
