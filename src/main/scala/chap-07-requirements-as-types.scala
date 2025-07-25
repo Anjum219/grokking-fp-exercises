@@ -79,3 +79,41 @@ object chap07 extends App {
     Artist("Bee Gees", "Pop", Location("England"), 1958, false, 2003)
   ))
 }
+
+object chap07HigherOrderFuncs extends App {
+  case class User(name: String, city: Option[String],
+    favoriteArtists: List[String])
+
+  val users = List(
+    User("Alice", Some("Melbourne"), List("Bee Gees")),
+    User("Bob", Some("Lagos"), List("Bee Gees")),
+    User("Eve", Some("Tokyo"), List.empty),
+    User("Mallory", None, List("Metallica", "Bee Gees")),
+    User("Trent", Some("Buenos Aires"), List("Led Zeppelin"))
+  )
+
+  def getUsersNotOutsideOfCity(users: List[User], city: String) =
+    users.filter(_.city.forall(_ == city)).map(_.name)
+
+  def getUsersInsideCity(users: List[User], city: String) =
+    users.filter(_.city.exists(_ == city)).map(_.name)
+
+  def getFansOfArtist(users: List[User], artist: String) =
+    users.filter(_.favoriteArtists.contains(artist)).map(_.name)
+
+  def getUsersInsideCityWithLetter(users: List[User], letter: String) =
+    users.filter(_.city.exists(_.startsWith(letter))).map(_.name)
+
+  def getFansOfArtistWithLengthOrNoArtist(users: List[User], artistLen: Int) =
+    users.filter(_.favoriteArtists.forall(_.length() > artistLen)).map(_.name)
+
+  def getFansOfArtistWithLetter(users: List[User], letter: String) =
+    users.filter(_.favoriteArtists.exists(_.startsWith(letter))).map(_.name)
+
+  println(getUsersNotOutsideOfCity(users, "Melbourne")) // List("Alice", "Mallory")
+  println(getUsersInsideCity(users, "Lagos")) // List("Bob")
+  println(getFansOfArtist(users, "Bee Gees")) // List("Alice", "Bob", "Mallory")
+  println(getUsersInsideCityWithLetter(users, "T")) // List("Eve")
+  println(getFansOfArtistWithLengthOrNoArtist(users, 8)) // List("Eve", "Trent")
+  println(getFansOfArtistWithLetter(users, "M")) // List("Mallory"))
+}
