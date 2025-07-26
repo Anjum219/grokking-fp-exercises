@@ -141,6 +141,13 @@ object chap07WithADT extends App {
     yearsActive: YearsActive,
   )
 
+  enum SearchCondition:
+    case SearchByGenre(genres: List[MusicGenre])
+    case SearchByOrigin(locations: List[Location])
+    case SearchByActiveYears(start: Int, end: Int)
+
+  import SearchCondition.*
+
   def wasArtistActive(
     artist: Artist, yearStart: Int, yearEnd: Int
   ): Boolean =
@@ -155,16 +162,16 @@ object chap07WithADT extends App {
 
   def searchArtists(
     artists: List[Artist],
-    genres: List[MusicGenre],
-    locations: List[Location],
-    searchByActiveYears: Boolean,
-    activeAfter: Int,
-    activeBefore: Int,
+    requiredConditions: List[SearchCondition]
   ): List[Artist] =
     artists.filter(artist =>
-      (genres.isEmpty || genres.contains(artist.genre)) &&
-      (locations.isEmpty || locations.contains(artist.origin)) &&
-      (!searchByActiveYears || wasArtistActive(artist, activeAfter, activeBefore))
+      requiredConditions.forall(condition =>
+        condition match {
+          case SearchByGenre(genres) => genres.contains(artist.genre)
+          case SearchByOrigin(locations) => locations.contains(artist.origin)
+          case SearchByActiveYears(start, end) => wasArtistActive(artist, start, end)
+        }
+      )
     )
 
   assert(
@@ -192,25 +199,25 @@ object chap07WithADT extends App {
     Artist("Bee Gees", Pop, Location("England"), ActiveBetween(1958, 2003))
   )
 
-  val searchRes1 = searchArtists(artists, List(Pop), List(Location("England")), true, 1950, 2022)
+  val searchRes1 = searchArtists(artists, List(SearchByGenre(List(Pop)), SearchByOrigin(List(Location("England"))), SearchByActiveYears(1950, 2022)))
   assert(searchRes1 == List(Artist("Bee Gees", Pop, Location("England"), ActiveBetween(1958, 2003))))
 
-  val searchRes2 = searchArtists(artists, List.empty, List(Location("England")), true, 1950, 2022)
+  val searchRes2 = searchArtists(artists, List(SearchByOrigin(List(Location("England"))), SearchByActiveYears(1950, 20222)))
   assert(searchRes2 == List(
     Artist("Led Zeppelin", HardRock, Location("England"), ActiveBetween(1968, 1980)),
     Artist("Bee Gees", Pop, Location("England"), ActiveBetween(1958, 2003))
   ))
 
-  val searchRes3 = searchArtists(artists, List.empty, List.empty, true, 1981, 2003)
+  val searchRes3 = searchArtists(artists, List(SearchByActiveYears(1981, 2003)))
   assert(searchRes3 == List(
     Artist("Metallica", HeavyMetal, Location("U.S."), StillActive(1981)),
     Artist("Bee Gees", Pop, Location("England"), ActiveBetween(1958, 2003))
   ))
 
-  val searchRes4 = searchArtists(artists, List.empty, List(Location("U.S.")), false, 0, 0)
+  val searchRes4 = searchArtists(artists, List(SearchByOrigin(List(Location("U.S.")))))
   assert(searchRes4 == List(Artist("Metallica", HeavyMetal, Location("U.S."), StillActive(1981))))
 
-  val searchRes5 = searchArtists(artists, List.empty, List.empty, false, 2019, 2022)
+  val searchRes5 = searchArtists(artists, List.empty)
   assert(searchRes5 == List(
     Artist("Metallica", HeavyMetal, Location("U.S."), StillActive(1981)),
     Artist("Led Zeppelin", HardRock, Location("England"), ActiveBetween(1968, 1980)),
