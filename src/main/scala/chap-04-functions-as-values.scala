@@ -23,7 +23,6 @@ def sortIntsDesc(list: List[Int]): List[Int] =
 def sortByLetterSCountDesc(list: List[String]): List[String] =
   list.sortBy(_.count(_ == 's') * -1)
 
-
 // Practicing filter
 
 // Return words that are shorter than five characters.
@@ -45,7 +44,6 @@ def filterOdd(list: List[Int]): List[Int] =
 // input: List(5, 1, 2, 4, 0) output: List(5)
 def filterLarge(list: List[Int]): List[Int] =
   list.filter(_ > 4)
-
 
 // Returning functions practice
 
@@ -78,10 +76,10 @@ def filterListShorterThan(list: List[String], threshold: Int): List[String] =
 // Change: Now return words that have more than zero of the letter 's'
 // inside.
 // input: List("rust", "ada") output: List("rust")
-def filterMoreThan(threshold: Int): String => Boolean = str => str.count(_ == 's') > threshold
+def filterMoreThan(threshold: Int): String => Boolean = str =>
+  str.count(_ == 's') > threshold
 def filterListMoreThan(list: List[String], threshold: Int): List[String] =
   list.filter(filterMoreThan(threshold))
-
 
 // Practicing currying
 
@@ -104,7 +102,6 @@ def shorterThanThreshold(threshold: Int)(word: String): Boolean = word.length < 
 def filterMoreThanThreshold(threshold: Int)(word: String): Boolean =
   word.count(_ == 's') > threshold
 
-
 // Practicing foldLeft
 
 // Return a sum of all integers in the given list.
@@ -126,15 +123,32 @@ def totalOccurrencesOfS(words: List[String]): Int =
 def max(numbers: List[Int]): Int =
   numbers.foldLeft(Int.MinValue)((max, i) => if (i > max) i else max)
 
-
 object chap04 extends App {
-  assert(sortByLength(List("abc", "ac", "ab", "b", "a")) == List("b", "a", "ac", "ab", "abc"))
+  assert(
+    sortByLength(List("abc", "ac", "ab", "b", "a")) == List("b", "a", "ac", "ab", "abc")
+  )
 
-  assert(sortByLetterSCount(List("ssss", "qwe", "zxc", "asd", "")) == List("qwe", "zxc", "", "asd", "ssss"))
+  assert(
+    sortByLetterSCount(List("ssss", "qwe", "zxc", "asd", "")) == List(
+      "qwe",
+      "zxc",
+      "",
+      "asd",
+      "ssss"
+    )
+  )
 
   assert(sortIntsDesc(List(1, 2, 3, 4, 5)) == List(5, 4, 3, 2, 1))
 
-  assert(sortByLetterSCountDesc(List("ssss", "qwe", "zxc", "asd", "")) == List("ssss", "asd", "qwe", "zxc", ""))
+  assert(
+    sortByLetterSCountDesc(List("ssss", "qwe", "zxc", "asd", "")) == List(
+      "ssss",
+      "asd",
+      "qwe",
+      "zxc",
+      ""
+    )
+  )
 
   assert(filterShorts(List("scala", "rust", "ada")) == List("rust", "ada"))
 
@@ -163,7 +177,7 @@ object chap04 extends App {
 
   assert(sum(List(5, 1, 2, 4, 100)) == 112)
   assert(sum(List()) == 0)
-  assert(totalLengthOfWords( List("scala", "rust", "ada")) == 12)
+  assert(totalLengthOfWords(List("scala", "rust", "ada")) == 12)
   assert(totalLengthOfWords(List()) == 0)
   assert(totalOccurrencesOfS(List("scala", "haskell", "rust", "ada")) == 3)
   assert(totalOccurrencesOfS(List("", "qwe")) == 0)

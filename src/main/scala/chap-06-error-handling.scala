@@ -15,50 +15,55 @@ def parseShowsWithAllOrNothing(rawShows: List[String]): Option[List[TvShow]] =
     .foldLeft(initialValue)(addOrResign)
 
 def addOrResign(
-  parsedShows: Option[List[TvShow]],
-  newParsedShow: Option[TvShow]
+    parsedShows: Option[List[TvShow]],
+    newParsedShow: Option[TvShow]
 ): Option[List[TvShow]] =
   for {
-    shows <- parsedShows
+    shows      <- parsedShows
     parsedShow <- newParsedShow
   } yield shows.appended(parsedShow)
 
 def parseShow(rawShow: String): Option[TvShow] =
   for {
-    name <- extractName(rawShow)
+    name      <- extractName(rawShow)
     yearStart <- extractYearStart(rawShow).orElse(extractSingleYear(rawShow))
-    yearEnd <- extractYearEnd(rawShow).orElse(extractSingleYear(rawShow))
+    yearEnd   <- extractYearEnd(rawShow).orElse(extractSingleYear(rawShow))
   } yield TvShow(name, yearStart, yearEnd)
 
 def extractYearStart(rawShow: String): Option[Int] =
   val openBracketIndex = rawShow.indexOf('(')
-  val dashIndex = rawShow.indexOf('-')
+  val dashIndex        = rawShow.indexOf('-')
   for {
-    yearStr <- if (openBracketIndex > -1 && dashIndex > openBracketIndex + 1)
-                  Some(rawShow.substring(openBracketIndex + 1, dashIndex))
-                else None
+    yearStr <-
+      if (openBracketIndex > -1 && dashIndex > openBracketIndex + 1)
+        Some(rawShow.substring(openBracketIndex + 1, dashIndex))
+      else None
     year <- yearStr.toIntOption
   } yield year
 
 def extractYearEnd(rawShow: String): Option[Int] =
-  val dashIndex = rawShow.indexOf('-')
+  val dashIndex         = rawShow.indexOf('-')
   val bracketCloseIndex = rawShow.indexOf(')')
   for {
-    yearStr <- if (dashIndex > -1 && bracketCloseIndex > dashIndex + 1)
-                  Some(rawShow.substring(dashIndex + 1, bracketCloseIndex))
-                else None
+    yearStr <-
+      if (dashIndex > -1 && bracketCloseIndex > dashIndex + 1)
+        Some(rawShow.substring(dashIndex + 1, bracketCloseIndex))
+      else None
     year <- yearStr.toIntOption
   } yield year
 
 def extractSingleYear(rawShow: String): Option[Int] =
-  val dashIndex = rawShow.indexOf('-')
-  val bracketOpenIndex = rawShow.indexOf('(')
+  val dashIndex         = rawShow.indexOf('-')
+  val bracketOpenIndex  = rawShow.indexOf('(')
   val bracketCloseIndex = rawShow.indexOf(')')
   for {
-    yearStr <- if (dashIndex == -1 && bracketOpenIndex > -1 && bracketCloseIndex > bracketOpenIndex + 1)
-                Some(rawShow.substring(bracketOpenIndex + 1, bracketCloseIndex))
-               else
-                None
+    yearStr <-
+      if (
+        dashIndex == -1 && bracketOpenIndex > -1 && bracketCloseIndex > bracketOpenIndex + 1
+      )
+        Some(rawShow.substring(bracketOpenIndex + 1, bracketCloseIndex))
+      else
+        None
     year <- yearStr.toIntOption
   } yield year
 
@@ -81,8 +86,6 @@ def extractSingleYearIfNameExists(rawShow: String): Option[Int] =
 
 def extractAnyYearIfNameExists(rawShow: String): Option[Int] =
   extractName(rawShow).flatMap(name => extractAnyYear(rawShow))
-
-
 
 object chap06 extends App {
   val shows = List(
@@ -119,38 +122,41 @@ object chap06 extends App {
   println(parseShowsWithAllOrNothing(List()))
 }
 
-
-
 object chap06Either extends App {
   def extractYearStart(rawShow: String): Either[String, Int] =
     val openBracketIndex = rawShow.indexOf('(')
-    val dashIndex = rawShow.indexOf('-')
+    val dashIndex        = rawShow.indexOf('-')
     for {
-      yearStr <- if (openBracketIndex > -1 && dashIndex > openBracketIndex + 1)
-                    Right(rawShow.substring(openBracketIndex + 1, dashIndex))
-                  else Left(s"Can't extract start year from '$rawShow'")
+      yearStr <-
+        if (openBracketIndex > -1 && dashIndex > openBracketIndex + 1)
+          Right(rawShow.substring(openBracketIndex + 1, dashIndex))
+        else Left(s"Can't extract start year from '$rawShow'")
       year <- yearStr.toIntOption.toRight(s"Can't parse start year '$yearStr'")
     } yield year
 
   def extractYearEnd(rawShow: String): Either[String, Int] =
-    val dashIndex = rawShow.indexOf('-')
+    val dashIndex         = rawShow.indexOf('-')
     val bracketCloseIndex = rawShow.indexOf(')')
     for {
-      yearStr <- if (dashIndex > -1 && bracketCloseIndex > dashIndex + 1)
-                    Right(rawShow.substring(dashIndex + 1, bracketCloseIndex))
-                  else Left(s"Can't extract end year from '$rawShow'")
+      yearStr <-
+        if (dashIndex > -1 && bracketCloseIndex > dashIndex + 1)
+          Right(rawShow.substring(dashIndex + 1, bracketCloseIndex))
+        else Left(s"Can't extract end year from '$rawShow'")
       year <- yearStr.toIntOption.toRight(s"Can't parse end year '$yearStr'")
     } yield year
 
   def extractSingleYear(rawShow: String): Either[String, Int] =
-    val dashIndex = rawShow.indexOf('-')
-    val bracketOpenIndex = rawShow.indexOf('(')
+    val dashIndex         = rawShow.indexOf('-')
+    val bracketOpenIndex  = rawShow.indexOf('(')
     val bracketCloseIndex = rawShow.indexOf(')')
     for {
-      yearStr <- if (dashIndex == -1 && bracketOpenIndex > -1 && bracketCloseIndex > bracketOpenIndex + 1)
-                  Right(rawShow.substring(bracketOpenIndex + 1, bracketCloseIndex))
-                else
-                  Left(s"Can't extract single year from '$rawShow'")
+      yearStr <-
+        if (
+          dashIndex == -1 && bracketOpenIndex > -1 && bracketCloseIndex > bracketOpenIndex + 1
+        )
+          Right(rawShow.substring(bracketOpenIndex + 1, bracketCloseIndex))
+        else
+          Left(s"Can't extract single year from '$rawShow'")
       year <- yearStr.toIntOption.toRight(s"Can't parse start year '$yearStr'")
     } yield year
 
@@ -162,17 +168,17 @@ object chap06Either extends App {
 
   def parseShow(rawShow: String): Either[String, TvShow] =
     for {
-      name <- extractName(rawShow)
+      name      <- extractName(rawShow)
       yearStart <- extractYearStart(rawShow).orElse(extractSingleYear(rawShow))
-      yearEnd <- extractYearEnd(rawShow).orElse(extractSingleYear(rawShow))
+      yearEnd   <- extractYearEnd(rawShow).orElse(extractSingleYear(rawShow))
     } yield TvShow(name, yearStart, yearEnd)
 
   def addOrResign(
-    parsedShows: Either[String, List[TvShow]],
-    newParsedShow: Either[String, TvShow]
+      parsedShows: Either[String, List[TvShow]],
+      newParsedShow: Either[String, TvShow]
   ): Either[String, List[TvShow]] =
     for {
-      shows <- parsedShows
+      shows      <- parsedShows
       parsedShow <- newParsedShow
     } yield shows.appended(parsedShow)
 
