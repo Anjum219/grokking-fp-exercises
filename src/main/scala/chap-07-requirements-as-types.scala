@@ -117,3 +117,204 @@ object chap07HigherOrderFuncs extends App {
   println(getFansOfArtistWithLengthOrNoArtist(users, 8)) // List("Eve", "Trent")
   println(getFansOfArtistWithLetter(users, "M")) // List("Mallory"))
 }
+
+object chap07WithADT extends App {
+  import Location.Location
+
+  enum MusicGenre:
+    case HeavyMetal
+    case Pop
+    case HardRock
+
+  import MusicGenre.*
+
+  enum YearsActive:
+    case StillActive(since: Int)
+    case ActiveBetween(start: Int, end: Int)
+
+  import YearsActive.*
+
+  case class Artist(
+    name: String,
+    genre: MusicGenre,
+    origin: Location,
+    yearsActive: YearsActive,
+  )
+
+  def wasArtistActive(
+    artist: Artist, yearStart: Int, yearEnd: Int
+  ): Boolean =
+    artist.yearsActive match
+      case StillActive(since) => since <= yearEnd
+      case ActiveBetween(start, end) => start <= yearEnd && end >= yearStart
+
+  def activeLength(artist: Artist, currentYear: Int): Int =
+    artist.yearsActive match
+      case StillActive(since) => currentYear - since
+      case ActiveBetween(start, end) => end - start
+
+  def searchArtists(
+    artists: List[Artist],
+    genres: List[MusicGenre],
+    locations: List[Location],
+    searchByActiveYears: Boolean,
+    activeAfter: Int,
+    activeBefore: Int,
+  ): List[Artist] =
+    artists.filter(artist =>
+      (genres.isEmpty || genres.contains(artist.genre)) &&
+      (locations.isEmpty || locations.contains(artist.origin)) &&
+      (!searchByActiveYears || wasArtistActive(artist, activeAfter, activeBefore))
+    )
+
+  assert(
+    activeLength(
+      Artist("Metallica", HeavyMetal, Location("U.S."), StillActive(1981)),
+      2022,
+    ) == 41
+  )
+  assert(
+    activeLength(
+      Artist("Led Zeppelin", HardRock, Location("England"), ActiveBetween(1968, 1980)),
+      2022,
+    ) == 12
+  )
+  assert(
+    activeLength(
+      Artist("Bee Gees", Pop, Location("England"), ActiveBetween(1958, 2003)),
+      2022,
+    ) == 45
+  )
+
+  val artists = List(
+    Artist("Metallica", HeavyMetal, Location("U.S."), StillActive(1981)),
+    Artist("Led Zeppelin", HardRock, Location("England"), ActiveBetween(1968, 1980)),
+    Artist("Bee Gees", Pop, Location("England"), ActiveBetween(1958, 2003))
+  )
+
+  val searchRes1 = searchArtists(artists, List(Pop), List(Location("England")), true, 1950, 2022)
+  assert(searchRes1 == List(Artist("Bee Gees", Pop, Location("England"), ActiveBetween(1958, 2003))))
+
+  val searchRes2 = searchArtists(artists, List.empty, List(Location("England")), true, 1950, 2022)
+  assert(searchRes2 == List(
+    Artist("Led Zeppelin", HardRock, Location("England"), ActiveBetween(1968, 1980)),
+    Artist("Bee Gees", Pop, Location("England"), ActiveBetween(1958, 2003))
+  ))
+
+  val searchRes3 = searchArtists(artists, List.empty, List.empty, true, 1981, 2003)
+  assert(searchRes3 == List(
+    Artist("Metallica", HeavyMetal, Location("U.S."), StillActive(1981)),
+    Artist("Bee Gees", Pop, Location("England"), ActiveBetween(1958, 2003))
+  ))
+
+  val searchRes4 = searchArtists(artists, List.empty, List(Location("U.S.")), false, 0, 0)
+  assert(searchRes4 == List(Artist("Metallica", HeavyMetal, Location("U.S."), StillActive(1981))))
+
+  val searchRes5 = searchArtists(artists, List.empty, List.empty, false, 2019, 2022)
+  assert(searchRes5 == List(
+    Artist("Metallica", HeavyMetal, Location("U.S."), StillActive(1981)),
+    Artist("Led Zeppelin", HardRock, Location("England"), ActiveBetween(1968, 1980)),
+    Artist("Bee Gees", Pop, Location("England"), ActiveBetween(1958, 2003))
+  ))
+}
+
+object chap07Playlist extends App {
+  opaque type Artist = String
+  object Artist {
+    def apply(value: String): Artist = value
+    extension(artist: Artist)
+      def name: String = artist
+  }
+
+  opaque type User = String
+  object User {
+    def apply(value: String): User = value
+    extension(user: User)
+      def name: String = user
+  }
+
+  enum MusicGenre:
+    case Classical
+    case Nazrul
+    case Latino
+    case African
+
+  import MusicGenre.*
+
+  enum PlaylistKind:
+    case CuratedByUser(user: User)
+    case BasedOnArtist(artist: Artist)
+    case BasedOnGenres(genres: Set[MusicGenre])
+
+  import PlaylistKind.*
+
+  case class Song(
+    artist: Artist,
+    title: String,
+  )
+
+  case class Playlist(
+    name: String,
+    kind: PlaylistKind,
+    songs: List[Song],
+  )
+
+  def gatherSongs(
+    playlists: List[Playlist],
+    artist: Artist,
+    genre: MusicGenre
+  ): List[Song] =
+    playlists.flatMap(playlist =>
+      playlist.kind match {
+        case CuratedByUser(user) => playlist.songs.filter(_.artist == artist)
+        case BasedOnArtist(playlistArtist) => if (playlistArtist == artist) playlist.songs
+                                              else List.empty
+        case BasedOnGenres(genres) => if (genres.contains(genre)) playlist.songs
+                                      else List.empty
+      }
+    )
+
+  val playlists: List[Playlist] = List(
+    Playlist(
+      "Anjum's favorite",
+      CuratedByUser(User("Anjum")),
+      List(
+        Song(Artist("Cigarettes After Sex"), "Apocalypse"),
+        Song(Artist("Cigarettes After Sex"), "Tejano Blue"),
+        Song(Artist("Marine"), "Tidal Waves"),
+        Song(Artist("ForgotName"), "Static on the radio"),
+      ),
+    ),
+    Playlist(
+      "Samudro's favorite",
+      CuratedByUser(User("Samudro")),
+      List(
+        Song(Artist("Coldplay"), "Yellow"),
+        Song(Artist("Coldplay"), "Scientist"),
+        Song(Artist("Backstreet Boys"), "Show me the meaning"),
+      ),
+    ),
+    Playlist(
+      "Samudro's favorite",
+      BasedOnArtist(Artist("Cigarettes After Sex")),
+      List(
+        Song(Artist("Cigarettes After Sex"), "Apocalypse"),
+        Song(Artist("Cigarettes After Sex"), "Sunsetz"),
+        Song(Artist("Cigarettes After Sex"), "Tejano Blue"),
+        Song(Artist("Cigarettes After Sex"), "Bubble Gum"),
+      ),
+    ),
+    Playlist(
+      "Bos Robo favorite",
+      BasedOnGenres(Set(Nazrul, African)),
+      List(
+        Song(Artist("Coke Studio"), "Bulbuli"),
+        Song(Artist("Mathy"), "Ameyatchi"),
+        Song(Artist("Cassav"), "Ou lè"),
+      ),
+    ),
+  )
+
+  val songs = gatherSongs(playlists, Artist("Cigarettes After Sex"), African)
+  println(songs)
+}
